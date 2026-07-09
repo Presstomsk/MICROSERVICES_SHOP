@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog-db
+  namespace: shop
+  labels:
+    app: catalog-db
+spec:
+  type: ClusterIP
+  selector:
+    app: catalog-db
+  ports:
+  - port: 5432
+    targetPort: 5432
+    protocol: TCP
+    name: postgres
