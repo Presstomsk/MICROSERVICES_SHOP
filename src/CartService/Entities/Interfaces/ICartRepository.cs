@@ -2,10 +2,10 @@ namespace CartService.Entities.Interfaces
 {
     public interface ICartRepository
     {
-        Task<Cart> AddToCartAsync(CartItem cartItem);
+        Task AddItemToCartAsync(int userId, ICart cart);
 
-        Task<Cart> GetCartAsync();
+        Task<string?> GetCartAsync(int userId);
 
-        Task<Cart> DeleteFromCartAsync(CartItem item);
+        Task RemoveCartAsync(int userId);
     }
 }

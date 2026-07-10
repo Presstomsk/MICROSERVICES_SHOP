@@ -4,6 +4,10 @@ namespace CartService.Entities.Interfaces
     {        
         int ProductId { get; set; }
 
+        string ProductName { get; set; }
+
         int Quantity { get; set; }
+
+        decimal Price { get; set; }
     }
 }

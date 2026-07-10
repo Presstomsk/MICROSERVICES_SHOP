@@ -4,6 +4,12 @@ namespace CartService.Entities.Interfaces
     {
         int UserId { get; set; }
 
-        List<CartItem> CartItems { get; set; } 
+        List<CartItem> CartItems { get; set; }
+
+        int TotalCartItems { get; }
+
+        decimal TotalCartPrice { get; }
+        
+        DateTime UpdatedAt { get; set; }  
     }
 }

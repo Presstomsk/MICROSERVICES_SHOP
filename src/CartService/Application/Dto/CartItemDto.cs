@@ -1,9 +1,7 @@
-namespace CartService.Entities
-{    
-    using CartService.Entities.Interfaces;
-
-    public class CartItem : ICartItem
-    {       
+namespace CartService.Application.Dto
+{
+    public class CartItemDto
+    {
         public int ProductId { get; set; }
 
         public string ProductName { get; set; } = string.Empty;
