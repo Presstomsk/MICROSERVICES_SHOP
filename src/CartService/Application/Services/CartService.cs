@@ -1,23 +1,39 @@
 ﻿namespace CartService.Application.Services
 {
     using System.Text.Json;
+    using global::CartService.Application.Dto;
+    using global::CartService.Application.Interfaces;
     using global::CartService.Entities;
     using global::CartService.Entities.Interfaces;
     using Interfaces;
 
-    public class CartService(ICartRepository cartRepository, ILogger<CartService> logger) : ICartService
+    public class CartService(ICartRepository cartRepository,
+        ICatalogClient catalogClient,
+        ILogger<CartService> logger) : ICartService
     {
         public async Task<ICart> GetCartAsync(int userId)
         {
-            var cart = await cartRepository.GetCartAsync(userId);
+            string? cartJson = await cartRepository.GetCartAsync(userId);
 
-            return !string.IsNullOrEmpty(cart) 
-                ? JsonSerializer.Deserialize<Cart>(cart)!
-                : new Cart 
-                    {
-                        UserId = userId,
-                        CartItems = []
-                    }; 
+            Cart cart = !string.IsNullOrEmpty(cartJson) 
+                            ? JsonSerializer.Deserialize<Cart>(cartJson)!
+                            : new Cart { UserId = userId, CartItems = [] };
+            int[] productIds = [.. cart.CartItems.Select(ci => ci.ProductId)];
+
+            await foreach(ProductDto product in catalogClient.GetProductsAsync(productIds))
+            {
+                CartItem? cartItem = cart.CartItems.Find(ci => ci.ProductId == product.Id);
+
+                if (cartItem is not null)
+                {
+                    cartItem.Price = product.Price;
+                    cartItem.ProductName = product.Name;
+                }
+            }
+
+            await cartRepository.AddItemToCartAsync(userId, cart);
+
+            return cart;             
         }
 
         public async Task<ICart> AddItemToCartAsync(int userId, CartItem cartItem)

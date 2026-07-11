@@ -1,34 +1,34 @@
+# k8s/cart/cart-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: catalog
+  name: cart
   namespace: shop
   labels:
-    app: catalog
+    app: cart
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
-      app: catalog
+      app: cart
   template:
     metadata:
       labels:
-        app: catalog
+        app: cart
     spec:
       containers:
-      - name: catalog
-        image: docker.io/presstomsk/catalogservice:latest
+      - name: cart
+        image: presstomsk/cartservice:latest
         ports:
         - containerPort: 8080
-          name: http
-        - containerPort: 5001
-          name: grpc
-        envFrom:        
+        envFrom:
+        - configMapRef:
+            name: cart-config
         - secretRef:
-            name: catalog-secret
+            name: cart-secret
         readinessProbe:
           httpGet:
-            path: catalog/health/readiness
+            path: cart/health/readiness
             port: 8080
           initialDelaySeconds: 10
           periodSeconds: 5
@@ -36,7 +36,7 @@ spec:
           failureThreshold: 2
         livenessProbe:
           httpGet:
-            path: catalog/health/liveness
+            path: cart/health/liveness
             port: 8080
           initialDelaySeconds: 15
           periodSeconds: 10

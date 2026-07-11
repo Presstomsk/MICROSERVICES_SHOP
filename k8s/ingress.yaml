@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: catalog-ingress
+  name: shop-ingress
   namespace: shop
 spec:
   ingressClassName: nginx
@@ -9,10 +9,17 @@ spec:
     - host: localhost
       http:
         paths:
-          - path: /
+          - path: /catalog
             pathType: Prefix
             backend:
               service:
                 name: catalog
+                port:
+                  number: 8080
+          - path: /cart
+            pathType: Prefix
+            backend:
+              service:
+                name: cart
                 port:
                   number: 8080

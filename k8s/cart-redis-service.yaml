@@ -1,0 +1,12 @@
+# k8s/cart-redis-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cart-redis
+  namespace: shop
+spec:
+  selector:
+    app: cart-redis
+  ports:
+  - port: 6379
+    targetPort: 6379

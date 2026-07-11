@@ -5,6 +5,8 @@ namespace CatalogService.Entities.Interfaces
     {
         Task<List<Product>> GetAllProductsAsync();
 
+        Task<List<Product>> GetProductsAsync(int[] ids);
+
         Task<Product?> GetProductAsync(int id);
 
         Task<List<Product>> GetProductsByCategoryAsync(int categoryId);

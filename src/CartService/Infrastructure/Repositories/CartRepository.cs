@@ -1,4 +1,4 @@
-namespace CartService.Infrastructure
+namespace CartService.Infrastructure.Repositories
 {
     using System.Text.Json;
     using CartService.Entities.Interfaces;

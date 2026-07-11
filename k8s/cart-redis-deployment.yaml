@@ -1,0 +1,39 @@
+# k8s/cart-redis-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cart-redis
+  namespace: shop
+  labels:
+    app: cart-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cart-redis
+  template:
+    metadata:
+      labels:
+        app: cart-redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+        resources:          # ← Добавь это
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        # Сохраняем данные на диск каждые 5 минут
+        command: ["redis-server", "--appendonly", "yes", "--save", "300", "1"]
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+      volumes:
+      - name: redis-data
+        persistentVolumeClaim:
+          claimName: cart-redis-pvc

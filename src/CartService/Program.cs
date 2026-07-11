@@ -1,8 +1,11 @@
+using CartService.Application.Interfaces;
 using CartService.Application.Services.Interfaces;
 using CartService.Enrichment;
 using CartService.Entities.Interfaces;
-using CartService.Infrastructure;
+using CartService.Infrastructure.Clients;
+using CartService.Infrastructure.Repositories;
 using CartService.Middleware;
+using CatalogService.Grpc;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -25,6 +28,11 @@ Log.Logger = new LoggerConfiguration()
     .Enrich.With<ServiceVersionEnricher>()
     .WriteTo.Async(a => a.Console(new CompactJsonFormatter()))
     .CreateLogger();
+
+builder.Services.AddGrpcClient<CatalogGrpc.CatalogGrpcClient>(options =>
+{
+    options.Address = new Uri(builder.Configuration.GetConnectionString("CatalogService")!);
+});
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
 
@@ -54,6 +62,7 @@ builder.Services.AddHealthChecks()
                     tags: ["readiness"]);
 builder.Services.AddControllers();
 
+builder.Services.AddScoped<ICatalogClient, GrpcCatalogClient>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<ICartService, CartService.Application.Services.CartService>();
 
@@ -71,13 +80,13 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.MapHealthChecks("/health/liveness", new HealthCheckOptions
+app.MapHealthChecks("cart/health/liveness", new HealthCheckOptions
 {
     Predicate = check => check.Tags.Contains("liveness"),
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
 
-app.MapHealthChecks("/health/readiness", new HealthCheckOptions
+app.MapHealthChecks("cart/health/readiness", new HealthCheckOptions
 {
     Predicate = check => check.Tags.Contains("readiness"),
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse

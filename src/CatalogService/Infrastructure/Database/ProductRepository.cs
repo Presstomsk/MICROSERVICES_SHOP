@@ -16,6 +16,11 @@ namespace CatalogService.Infrastructure.Database
             return await context.Products.AsNoTracking().Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == id);
         }
 
+        public async Task<List<Product>> GetProductsAsync(int[] ids)
+        {
+            return await context.Products.AsNoTracking().Where(p => ids.Contains(p.Id)).Include(p => p.Category).ToListAsync();
+        }
+
         public async Task<List<Product>> GetProductsByCategoryAsync(int categoryId)
         {
             return await context.Products.AsNoTracking().Where(p => p.CategoryId == categoryId).Include(p => p.Category).ToListAsync();

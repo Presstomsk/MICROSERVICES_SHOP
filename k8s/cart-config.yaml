@@ -1,0 +1,9 @@
+# k8s/cart/cart-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cart-config
+  namespace: shop
+data:
+  ASPNETCORE_URLS: "http://+:8080"
+  DOTNET_ENVIRONMENT: "Production"

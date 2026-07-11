@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option csharp_namespace = "CatalogService.Grpc";
+
+service CatalogGrpc {
+  rpc GetProducts(GetProductsRequest) returns (stream GetProductResponse);
+}
+
+message GetProductsRequest {
+  repeated int32 product_ids = 1;  // ← коллекция int
+}
+
+message GetProductResponse {
+  int32 id = 1;
+  string name = 2;
+  string price = 3;  
+}

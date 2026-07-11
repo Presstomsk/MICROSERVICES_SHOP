@@ -6,7 +6,7 @@
     using Microsoft.AspNetCore.Mvc;
 
     [ApiController]
-    [Route("[controller]")]
+    [Route("cart/[controller]")]
     public class CartController(IMediator mediator, ILogger<CartController> logger) : ControllerBase
     {
         [HttpGet("{userId}")]

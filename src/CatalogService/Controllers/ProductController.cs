@@ -6,7 +6,7 @@
     using Microsoft.AspNetCore.Mvc;
 
     [ApiController]
-    [Route("[controller]")]
+    [Route("catalog/[controller]")]
     public class ProductController(IMediator mediator, ILogger<ProductController> logger) : ControllerBase
     {
         [HttpGet]

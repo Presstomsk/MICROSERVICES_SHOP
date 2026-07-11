@@ -4,8 +4,10 @@ using CatalogService.Entities.Interfaces;
 using CatalogService.Extensions;
 using CatalogService.Infrastructure.Database;
 using CatalogService.Middleware;
+using CatalogService.Services;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi;
@@ -29,6 +31,14 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Host.UseSerilog();
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(8080);
+    options.ListenAnyIP(5001, listenOptions =>
+    {
+        listenOptions.Protocols = HttpProtocols.Http2;
+    });
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -54,6 +64,7 @@ builder.Services.AddHealthChecks()
                     failureStatus: HealthStatus.Unhealthy,
                     tags: ["readiness"]);
 builder.Services.AddControllers();
+builder.Services.AddGrpc();
 
 builder.Services.AddScoped<ICategory, Category>();
 builder.Services.AddScoped<IProduct, Product>();
@@ -75,13 +86,13 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.MapHealthChecks("/health/liveness", new HealthCheckOptions
+app.MapHealthChecks("catalog/health/liveness", new HealthCheckOptions
 {
     Predicate = check => check.Tags.Contains("liveness"),
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
 
-app.MapHealthChecks("/health/readiness", new HealthCheckOptions
+app.MapHealthChecks("catalog/health/readiness", new HealthCheckOptions
 {
     Predicate = check => check.Tags.Contains("readiness"),
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
@@ -90,5 +101,6 @@ app.MapHealthChecks("/health/readiness", new HealthCheckOptions
 app.UseHttpsRedirection();
 await app.AddDatabaseMigration();
 app.MapControllers();
+app.MapGrpcService<CatalogGrpcService>();
 
 app.Run();
